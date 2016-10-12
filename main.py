@@ -1,9 +1,11 @@
 import sys
 sys.path.insert(0, './InitialTraining')
+sys.path.insert(0,'./Imagenet')
 import cv2
 import matplotlib.pyplot as plt
 
 from Augment import *
+from ImagenetReader import *
 
 img = cv2.imread('./images/bear1.jpg')
 
@@ -19,3 +21,6 @@ cv2.imshow('img',img.astype('uint8'))
 print img.shape
 cv2.waitKey(0)
 
+datasetreader = ImagenetReader('./Imagenet/words.txt')
+
+print datasetreader.wnidfromclass('dog')

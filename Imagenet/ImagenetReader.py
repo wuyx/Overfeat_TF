@@ -19,5 +19,6 @@ class ImagenetReader:
 		except KeyError:
 			print('{} was not found in the mapping file.'.format(classname.lower()))
 
+	def classfromwnid(self, wnid):
 
 
