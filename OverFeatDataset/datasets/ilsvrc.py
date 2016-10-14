@@ -28,7 +28,6 @@ def merge_dict_nooverwrite(dict1, dict2):
 
 class ILSVRC(object):
 
-
 	def __init__(self, wordnetmappingfilename, base_save_path):
 		assert base_save_path is not None, "You must provide the base path where ILSVRC2015 is stored."
 		assert wordnetmappingfilename is not None, "You must provide the path where the wordnet mapping file is stored."
@@ -52,15 +51,15 @@ class ILSVRC(object):
 					self.inversemapping[category] = [line[0]]
 		file.close()
 
-
+	@staticmethod
 	def numclasses(self):
 		return 1000
 
-
+	@staticmethod
 	def dbname(self):
 		return "ILSVRC2015"
 
-
+	@staticmethod
 	def __ispresent(self, category):
 		assert category is not None, "category must be a string representing a class you want to query."
 		assert type(category) is str, "category must be a string representing a class you want to query."
@@ -70,7 +69,7 @@ class ILSVRC(object):
 			return False
 		return True
 
-
+	@staticmethod
 	def __getwnid(self, category):
 		try:
 			wnid = self.inversemapping[category.lower()]
@@ -78,6 +77,7 @@ class ILSVRC(object):
 			return None
 		return wnid
 
+	@staticmethod
 	def __getcategorynames(self, wnid):
 		try:
 			categories = self.mapping[wnid.lower()]
@@ -85,26 +85,24 @@ class ILSVRC(object):
 			return None
 		return categories
 
-
-
+	@staticmethod
 	def __predefinedsplit(self):
 		return True
 
-
+	@staticmethod
 	def __readtrain(self):
-		imagesetfile = os.path.join(self.base_save_path,'ImageSets','CLS-LOC','train_cls.txt')
-		trainingsourcepath = os.path.join(self.base_save_path,'Data','CLS-LOC','train')
+		imagesetfile = os.path.join(self.base_save_path, 'ImageSets', 'CLS-LOC', 'train_cls.txt')
+		trainingsourcepath = os.path.join(self.base_save_path, 'Data', 'CLS-LOC', 'train')
 		df = pd.read_table(imagesetfile, header=None, delimiter=' ')
 		df = df.ix[:,0]
 		categories = set()
 		filenames = dict()
 		for index in range(len(df)):
-			classsearch = re.search('^(n[0-9]+)/(.+)$', df[index])
-			categories.add(classsearch.group(1))
-			if classsearch.group(1) in filenames:
-				filenames[classsearch.group(1)].append(os.path.join(trainingsourcepath,classsearch.group(2) + '.JPEG'))
+			categories.add(df[index][0:9])
+			if df[index][0:9] in filenames:
+				filenames[df[index][0:9]].append(os.path.join(trainingsourcepath, df[index][11:] + '.JPEG'))
 			else:
-				filenames[classsearch.group(1)] = [os.path.join(trainingsourcepath,classsearch.group(2) + '.JPEG')]
+				filenames[df[index][0:9]] = [os.path.join(trainingsourcepath, df[index][11:] + '.JPEG')]
 
 		categories = list(categories)
 		self.categorymapping = dict()
@@ -113,11 +111,11 @@ class ILSVRC(object):
 
 		return filenames
 
-
+	@staticmethod
 	def __readvalidation(self):
-		imagesetfile = os.path.join(self.base_save_path,'ImageSets','CLS-LOC','val.txt')
-		validationsourcepath = os.path.join(self.base_save_path,'Data','CLS-LOC','val')
-		validationannotationpath = os.path.join(self.base_save_path,'Annotations','CLS-LOC','val')
+		imagesetfile = os.path.join(self.base_save_path, 'ImageSets', 'CLS-LOC','val.txt')
+		validationsourcepath = os.path.join(self.base_save_path, 'Data', 'CLS-LOC', 'val')
+		validationannotationpath = os.path.join(self.base_save_path, 'Annotations', 'CLS-LOC', 'val')
 		df = pd.read_table(imagesetfile, header=None, delimiter=' ')
 		df = df.ix[:,0]
 		filenames = dict()
@@ -129,7 +127,7 @@ class ILSVRC(object):
 				filenames[category] = [os.path.join(validationsourcepath, df[i] + '.JPEG')]
 		return filenames
 
-
+	@staticmethod
 	def __readtest(self):
 		imagesetfile = os.path.join(self.base_save_path, 'ImageSets', 'CLS-LOC', 'test.txt')
 		testsourcepath = os.path.join(self.base_save_path, 'Data', 'CLS-LOC', 'test')
@@ -140,15 +138,15 @@ class ILSVRC(object):
 		df = map(lambda x: os.path.join(testsourcepath, x + '.JPEG'), df)
 		return df
 
+	@staticmethod
 	def __readvoc(self, filename):
-		file = ET.parse(filename)
-		r = file.getroot()
+		fname = ET.parse(filename)
+		r = fname.getroot()
 		for i in r.getchildren():
 			if i.tag == 'object':
 				for j in i.getchildren():
 					if j.tag == 'name':
 						return j.text
-
 
 	def getdata(self, categories, train_share=None, test_share=None, val_share=None,
 				forcesplit=False):
